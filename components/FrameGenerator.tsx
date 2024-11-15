@@ -126,7 +126,7 @@ export default function FrameGenerator() {
 
   return (
     <div className="min-h-screen bg-muted/50 py-8">
-      <div className="container max-w-6xl space-y-8">
+      <div className="container max-w-6xl space-y-8 mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>LinkedIn Frame Generator</CardTitle>
