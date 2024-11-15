@@ -27,19 +27,20 @@ import {
 } from "@/components/ui/tabs"
 
 const TEXT_OPTIONS = [
-  'Banned',
+  'OpenToWork',
+  'OpenToDrink',
   'Desperate',
-  'OpentoDrink',
   'Tired',
-  'Waitingfor',
-  'Inlove'
+  'WaitingFor',
+  'Banned',
+  'InLove'
 ]
 
 const COLOR_OPTIONS = [
+  { name: 'Green', value: '#22c55e' },
   { name: 'Purple', value: '#9333ea' },
   { name: 'Pink', value: '#ec4899' },
   { name: 'Blue', value: '#3b82f6' },
-  { name: 'Green', value: '#22c55e' },
   { name: 'Orange', value: '#f97316' },
 ]
 
@@ -90,22 +91,49 @@ export default function FrameGenerator() {
       const y = (img.height - size) / 2
       ctx.drawImage(img, x, y, size, size, 0, 0, 800, 800)
 
+      // Create radial gradient for frame
+      const gradient = ctx.createRadialGradient(400, 400, 300, 400, 400, 400)
+      gradient.addColorStop(0, frameColor)
+      gradient.addColorStop(0.6, frameColor + '99') // Semi-transparent
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)') // Fully transparent
+
       // Draw frame arc
       ctx.beginPath()
-      ctx.arc(400, 400, 400, Math.PI * 0.5, Math.PI * 1.2)
-      ctx.lineWidth = 120
-      ctx.strokeStyle = frameColor
+      ctx.arc(400, 400, 400, Math.PI * 0.2, Math.PI * 1.1)
+      ctx.lineWidth = 260
+      ctx.strokeStyle = gradient
       ctx.stroke()
 
       // Draw text
-      ctx.font = 'bold 72px Inter'
+      const text = `#${selectedText.toUpperCase()}`
+      ctx.font = 'bold 72px Arial'
       ctx.fillStyle = 'white'
       ctx.textAlign = 'center'
-      ctx.save()
-      ctx.translate(400, 400)
-      ctx.rotate(Math.PI * 0.85)
-      ctx.fillText(`#${selectedText.toUpperCase()}`, 0, 320)
-      ctx.restore()
+      ctx.textBaseline = 'middle'
+
+      // Add text shadow for better readability
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'
+      ctx.shadowBlur = 5
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 2
+
+      // Calculate text placement
+      const radius = 345 // Radius for text placement
+      const startAngle = Math.PI * 0.46 // Start from right side
+      const totalAngle = Math.PI * 0.6 // Total angle for text spread
+
+      // Draw each character along the arc
+      for (let i = 0; i < text.length; i++) {
+        const char = text.charAt(i)
+        const angle = startAngle - (i / (text.length - 1)) * totalAngle
+        ctx.save()
+        ctx.translate(400, 400)
+        ctx.rotate(angle)
+        ctx.translate(0, radius)
+        // ctx.rotate(-Math.PI / 2)
+        ctx.fillText(char, 0, 0)
+        ctx.restore()
+      }
     }
     img.src = image
   }
