@@ -37,7 +37,7 @@ const TEXT_OPTIONS = [
 ]
 
 const COLOR_OPTIONS = [
-  { name: 'Green', value: '#22c55e' },
+  { name: 'Green', value: '#467031' },
   { name: 'Purple', value: '#9333ea' },
   { name: 'Pink', value: '#ec4899' },
   { name: 'Blue', value: '#3b82f6' },
@@ -91,17 +91,39 @@ export default function FrameGenerator() {
       const y = (img.height - size) / 2
       ctx.drawImage(img, x, y, size, size, 0, 0, 800, 800)
 
-      // Create radial gradient for frame
-      const gradient = ctx.createRadialGradient(400, 400, 300, 400, 400, 400)
-      gradient.addColorStop(0, frameColor)
-      gradient.addColorStop(0.6, frameColor + '99') // Semi-transparent
-      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)') // Fully transparent
+      // Frame parameters
+      const startAngle = Math.PI * 0.2
+      const endAngle = Math.PI * 1.1
+      const frameWidth = 130
+
+      // Create gradient for frame edges
+      const gradient = ctx.createLinearGradient(
+        400 + Math.cos(startAngle) * 450,
+        400 + Math.sin(startAngle) * 350,
+        400 + Math.cos(endAngle) * 450,
+        400 + Math.sin(endAngle) * 350
+      )
+
+      // Add gradient stops with transparency
+      const colorWithAlpha = (color: string, alpha: number) => {
+        const r = parseInt(color.slice(1, 3), 16)
+        const g = parseInt(color.slice(3, 5), 16)
+        const b = parseInt(color.slice(5, 7), 16)
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+      }
+
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
+      gradient.addColorStop(0.14, colorWithAlpha(frameColor, 0.95))
+      gradient.addColorStop(0.5, frameColor)
+      gradient.addColorStop(0.86, colorWithAlpha(frameColor, 0.95))
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
       // Draw frame arc
       ctx.beginPath()
-      ctx.arc(400, 400, 400, Math.PI * 0.2, Math.PI * 1.1)
-      ctx.lineWidth = 260
+      ctx.arc(400, 400, 400 - frameWidth / 2, startAngle, endAngle)
+      ctx.lineWidth = frameWidth
       ctx.strokeStyle = gradient
+      // ctx.lineCap = 'round'
       ctx.stroke()
 
       // Draw text
@@ -118,19 +140,18 @@ export default function FrameGenerator() {
       ctx.shadowOffsetY = 2
 
       // Calculate text placement
-      const radius = 345 // Radius for text placement
-      const startAngle = Math.PI * 0.46 // Start from right side
-      const totalAngle = Math.PI * 0.6 // Total angle for text spread
+      const radius = 345
+      const textStartAngle = Math.PI * 0.46
+      const totalAngle = Math.PI * 0.6
 
       // Draw each character along the arc
       for (let i = 0; i < text.length; i++) {
         const char = text.charAt(i)
-        const angle = startAngle - (i / (text.length - 1)) * totalAngle
+        const angle = textStartAngle - (i / (text.length - 1)) * totalAngle
         ctx.save()
         ctx.translate(400, 400)
         ctx.rotate(angle)
         ctx.translate(0, radius)
-        // ctx.rotate(-Math.PI / 2)
         ctx.fillText(char, 0, 0)
         ctx.restore()
       }
